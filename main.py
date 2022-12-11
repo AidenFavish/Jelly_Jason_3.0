@@ -21,6 +21,7 @@ async def on_ready():
         data = json.load(j)
     activity = discord.Activity(type=discord.ActivityType.watching, name=" " + data["Status"])
     await client.change_presence(status=discord.Status.online, activity=activity)
+    await commands.stalker(client)
 
 
 @client.event

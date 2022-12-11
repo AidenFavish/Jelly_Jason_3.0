@@ -1,6 +1,7 @@
 import json
 import discord
 import datetime
+import asyncio
 
 async def custom_commands(message, client):
     msg = message.content.lower()
@@ -64,3 +65,19 @@ async def log(message, client):
         json.dump(data, j)
 
     await statistics(client)
+
+
+async def stalker(client):
+    stalkerChannel = client.get_channel(954982395721949184)
+    with open("storage.json", "r") as j:
+        data = json.load(j)
+    for i in stalkerChannel.guild.members:
+        if str(i.id) not in data["Stalker"]:
+            data["Stalker"][str(i.id)] = str(i.status)
+        if data["Stalker"][str(i.id)] != str(i.status):
+            data["Stalker"][str(i.id)] = str(i.status)
+            await stalkerChannel.send(i.name + " is now " + str(i.status) + " at " + str(datetime.datetime.now()))
+    with open("storage.json", "w") as j:
+        json.dump(data, j)
+    await asyncio.sleep(30)
+    asyncio.create_task(stalker(client))
