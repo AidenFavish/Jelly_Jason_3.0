@@ -1,3 +1,1 @@
-{
-  "Status" : "you sleep"
-}
+{"MainCounter": 6, "Status": "you sleep", "Commands": {"ping": "pong"}, "MsgCounter": {"779481064636809246": 6}}
