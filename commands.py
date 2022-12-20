@@ -3,12 +3,78 @@ import discord
 import datetime
 import asyncio
 
+
 async def custom_commands(message, client):
     msg = message.content.lower()
     with open("storage.json", "r") as j:
         data = json.load(j)
 
-    if msg in data["Commands"]:
+    if "-add " in msg:
+        command = msg[len("-add "):]
+
+        # Separates the trigger word from the response phrase
+        trigger = ""
+        response = ""
+        for i in range(0, len(command)):
+            if command[i:i + 1] == " ":
+                response = command[i + 1:]
+                break
+            else:
+                trigger += command[i:i + 1]
+
+        # Adds the command to the dictionary
+        with open("storage.json", "r") as j:
+            data = json.load(j)
+
+        data["Commands"][trigger] = response
+
+        with open("storage.json", "w") as j:
+            json.dump(data, j)
+
+        await message.delete()
+    elif "-delete " in msg:
+        trigger = msg[len("-delete "):]
+
+        with open("storage.json", "r") as j:
+            data = json.load(j)
+
+        data["Commands"].pop(trigger)
+
+        with open("storage.json", "w") as j:
+            json.dump(data, j)
+
+        await message.delete()
+    elif msg == "-help" or msg == "-commands" or msg == "-info":
+        display1 = "```fix\nCOMPLEX COMMANDS:\n-add *trigger_word* *response_phrase* -> adds a command with a trigger word of at least 3 words" \
+            "\n-delete *trigger_word* -> deletes the command associated with the trigger word" \
+            "\n-watching *rest of status* -> changes my status to watching *rest of status*```"
+
+        await message.channel.send(display1)
+        master = "ALL SIMPLE COMMANDS:"
+        with open("storage.json", "r") as j:
+            data = json.load(j)
+        for i in data["Commands"]:
+            if len(master + "\n" + i + " -> " + data["Commands"][i]) <= 1900:
+                master = master + "\n" + i + " -> " + data["Commands"][i]
+            else:
+                await message.channel.send(master)
+                master = i + " -> " + data["Commands"][i]
+        await message.channel.send(master)
+        await message.channel.send("These are just the public commands, there are more hidden commands")
+    elif "-watching " in msg:
+        status = msg[len("-watching "):]
+
+        with open("storage.json", "r") as j:
+            data = json.load(j)
+
+        data["Status"] = status
+
+        with open("storage.json", "w") as j:
+            json.dump(data, j)
+
+        activity = discord.Activity(type=discord.ActivityType.watching, name=" " + data["Status"])
+        await client.change_presence(status=discord.Status.online, activity=activity)
+    elif msg in data["Commands"]:
         await message.channel.send(data["Commands"][msg])
 
 
